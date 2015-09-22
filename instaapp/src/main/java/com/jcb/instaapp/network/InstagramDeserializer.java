@@ -23,6 +23,5 @@ public class InstagramDeserializer implements JsonDeserializer<Datum[]> {
         return new Gson().fromJson(content, Datum[].class);
 
 
-
     }
 }

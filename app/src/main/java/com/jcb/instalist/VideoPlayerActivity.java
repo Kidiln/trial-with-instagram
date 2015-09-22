@@ -21,7 +21,7 @@ public class VideoPlayerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String url = getIntent().getStringExtra("url");
+        String url = getIntent().getStringExtra(ApplicationData.INTENT_URL);
 
         setContentView(R.layout.video);
         final VideoView videoView =

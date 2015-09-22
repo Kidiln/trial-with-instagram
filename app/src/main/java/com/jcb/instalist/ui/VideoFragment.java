@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,10 +16,10 @@ import android.view.ViewGroup;
 import com.jcb.instaapp.InstagramFetch;
 import com.jcb.instaapp.model.Datum;
 import com.jcb.instaapp.network.InstagramCache;
+import com.jcb.instalist.ApplicationData;
 import com.jcb.instalist.InstagramUtils;
 import com.jcb.instalist.R;
 import com.jcb.instalist.VideoPlayerActivity;
-import com.jcb.instalist.cache.ImageFetcher;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,8 +30,7 @@ import java.util.ArrayList;
 public class VideoFragment extends Fragment {
 
     private static VideoFragment videoFragment;
-    private static ImageFetcher mImageFetcher;
-    ArrayList<Datum> myDataset;
+    private ArrayList<Datum> myDataset;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private LinearLayoutManager mLayoutManager;
@@ -41,13 +41,11 @@ public class VideoFragment extends Fragment {
 
     }
 
-    public static VideoFragment newInstance(ImageFetcher imgFetcher) {
+    public static VideoFragment newInstance() {
 
         if (videoFragment == null) {
             videoFragment = new VideoFragment();
         }
-
-        mImageFetcher = imgFetcher;
 
         return videoFragment;
     }
@@ -81,15 +79,13 @@ public class VideoFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(mContext);
         recyclerView.setLayoutManager(mLayoutManager);
 
-        swipeRefreshLayout.setEnabled(false);
-
         // specify an adapter (see also next example)
 
         try {
             myDataset = (ArrayList<Datum>) InstagramCache.readObject(mContext, InstagramFetch.CACHE_V_KEY);
             // specify an adapter (see also next example)
 
-            mAdapter = new VideoRecyclerAdapter(myDataset, mImageFetcher);
+            mAdapter = new VideoRecyclerAdapter(mContext, myDataset);
             mAdapter.setClickListener(new VideoOnClickListener());
             recyclerView.setAdapter(mAdapter);
 
@@ -104,13 +100,42 @@ public class VideoFragment extends Fragment {
         return v;
     }
 
+
+    /**
+     * Do on swipe refresh action. broadcast is sent if network is available.
+     */
     private void doOnRefresh() {
+
+
+        if (InstagramUtils.isNetworkAvailable(mContext)) {
+
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ApplicationData.INTENT_REFRESH));
+
+        } else {
+            try {
+
+                myDataset = (ArrayList<Datum>) InstagramCache.readObject(mContext, InstagramFetch.CACHE_V_KEY);
+
+                mAdapter.notifyDataSetChanged();
+
+                swipeRefreshLayout.setRefreshing(false);
+
+                InstagramUtils.showToast(mContext, "Refresh complete");
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            } catch (ClassNotFoundException e) {
+
+                e.printStackTrace();
+            }
+        }
+
 
     }
 
     private void doOnVideoItemClick(int position) {
         Intent launchIntent = new Intent(mContext, VideoPlayerActivity.class);
-        launchIntent.putExtra("url", myDataset.get(position).getVideos().getStandardResolution().getUrl());
+        launchIntent.putExtra(ApplicationData.INTENT_URL, myDataset.get(position).getVideos().getStandardResolution().getUrl());
         startActivity(launchIntent);
     }
 

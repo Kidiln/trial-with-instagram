@@ -12,9 +12,9 @@ import android.widget.Toast;
 
 /**
  * Created by jacobkoikkara on 8/11/15.
- *
+ * <p/>
  * Utils class for storing static methods to be used throught
- *  the application
+ * the application
  */
 public class InstagramUtils {
 
@@ -29,6 +29,7 @@ public class InstagramUtils {
 
     /**
      * Checking for network support
+     *
      * @param ctx : context to be passed
      * @return : true is network support is available.
      */

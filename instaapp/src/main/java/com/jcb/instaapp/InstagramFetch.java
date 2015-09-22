@@ -6,9 +6,9 @@ import android.os.Message;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.jcb.instaapp.model.Datum;
 import com.jcb.instaapp.network.InstagramCache;
 import com.jcb.instaapp.network.InstagramDeserializer;
-import com.jcb.instaapp.model.Datum;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,12 +28,9 @@ import java.util.List;
 public class InstagramFetch {
 
 
-    private static final String FETCH_URL = "https://api.instagram.com/v1/users/self/media/recent?access_token=";
-//    private static final String FETCH_VIDEO_URL = "https://api.instagram.com/v1/users/self/media/recent?type=video&access_token=";
-//    private static final String FETCH_PICTURE_URL = "https://api.instagram.com/v1/users/self/media/recent?type=image&access_token=";
     public static final String CACHE_I_KEY = "InstagramCacheImage";
     public static final String CACHE_V_KEY = "InstagramCacheVideo";
-
+    private static final String FETCH_URL = "https://api.instagram.com/v1/users/self/media/recent?access_token=";
     private static final String TAG_VIDEO = "video";
     private static int WHAT_ERROR = 1;
     private static int WHAT_FETCH_INFO = 2;
@@ -69,7 +66,8 @@ public class InstagramFetch {
     }
 
 
-    public void fetchFromInstagram() {
+    public void fetchFromInstagram(final boolean isSwipeRefresh) {
+
 
         new Thread(new Runnable() {
             @Override
@@ -77,8 +75,13 @@ public class InstagramFetch {
 
                 try {
 
+                    int count = mSession.getMediaCount();
+                    if (isSwipeRefresh) {
+                        count = mSession.getUpdateMediaCount();
+                    }
+
                     URL example = new URL(FETCH_URL
-                            + mSession.getAccessToken());
+                            + mSession.getAccessToken() + "&count=" + count);
 
                     URLConnection tc = example.openConnection();
                     BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -96,8 +99,8 @@ public class InstagramFetch {
                         List<Datum> picItem = new ArrayList<Datum>();
                         List<Datum> vidItem = new ArrayList<Datum>();
 
-                        for(Datum temp : users){
-                            if(temp.getType().equalsIgnoreCase(TAG_VIDEO)) {
+                        for (Datum temp : users) {
+                            if (temp.getType().equalsIgnoreCase(TAG_VIDEO)) {
 
                                 vidItem.add(temp);
                             } else {

@@ -1,9 +1,14 @@
 package com.jcb.instalist;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -13,27 +18,43 @@ import android.widget.Toast;
 
 import com.jcb.instaapp.InstagramApp;
 import com.jcb.instaapp.InstagramFetch;
-import com.jcb.instalist.cache.ImageCache;
-import com.jcb.instalist.cache.ImageFetcher;
 import com.jcb.instalist.ui.AppPagerAdapter;
 
 
 public class MainActivity extends FragmentActivity {
 
-    private static final String IMAGE_CACHE_DIR = "instagram_thumbs";
     private InstagramApp mApp;
     private InstagramFetch mFetch;
-    private ImageFetcher mImageFetcher;
-    private int mImageThumbSize;
+
+    /**
+     * Receiver for handling online data fetch.
+     */
+    BroadcastReceiver refreshObserver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (InstagramUtils.isNetworkAvailable(MainActivity.this)) {
+                mFetch.fetchFromInstagram(true);
+            }
+
+        }
+    };
     private Button btnConnect;
-    private Button btnFetch;
     private TextView tvSummary;
+
+    /**
+     * Listener for handling Instagram Authentication status. If success, media fetch is called.
+     */
     InstagramApp.OAuthAuthenticationListener listener = new InstagramApp.OAuthAuthenticationListener() {
 
         @Override
         public void onSuccess() {
             tvSummary.setText("Connected as " + mApp.getUserName());
             btnConnect.setText("Disconnect");
+            if (InstagramUtils.isNetworkAvailable(MainActivity.this)) {
+                mFetch.fetchFromInstagram(false);
+            }
+
         }
 
         @Override
@@ -42,12 +63,16 @@ public class MainActivity extends FragmentActivity {
         }
     };
     private ViewPager vwPager;
+
+    /**
+     * Listener for handling media fetch. If success, viewpager is updated.
+     */
     InstagramFetch.InstagramFetchListener fetchListener = new InstagramFetch.InstagramFetchListener() {
         @Override
         public void onSuccess() {
             Toast.makeText(MainActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+            vwPager.setAdapter(new AppPagerAdapter(getSupportFragmentManager()));
 
-            showViewPagerDetails();
         }
 
         @Override
@@ -65,13 +90,30 @@ public class MainActivity extends FragmentActivity {
         mApp = new InstagramApp(this, ApplicationData.CLIENT_ID,
                 ApplicationData.CLIENT_SECRET, ApplicationData.CALLBACK_URL);
         mFetch = new InstagramFetch(this);
+
         mApp.setListener(listener);
+
         mFetch.setListener(fetchListener);
 
         tvSummary = (TextView) findViewById(R.id.tvSummary);
+        final TextView txthelper = (TextView) findViewById(R.id.txtHelper);
+
+        // Used to find the the length of the width of the screen. // Can be optimised.
+        ViewTreeObserver observer = txthelper.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                // TODO Auto-generated method stub
+                InstagramUtils.showLog(txthelper.getWidth());
+                ApplicationData.widthScreenInPixels = txthelper.getWidth();
+
+                txthelper.getViewTreeObserver().removeGlobalOnLayoutListener(
+                        this);
+            }
+        });
 
         btnConnect = (Button) findViewById(R.id.btnConnect);
-        btnFetch = (Button) findViewById(R.id.btnFetch);
 
         vwPager = (ViewPager) findViewById(R.id.viewPager);
 
@@ -83,30 +125,41 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-        btnFetch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                mFetch.fetchFromInstagram();
-
-            }
-        });
-
         if (mApp.hasAccessToken()) {
             tvSummary.setText("Connected as " + mApp.getUserName());
             btnConnect.setText("Disconnect");
         }
 
+        vwPager.setAdapter(new AppPagerAdapter(getSupportFragmentManager()));
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(refreshObserver, new IntentFilter(ApplicationData.INTENT_REFRESH));
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        LocalBroadcastManager.getInstance(MainActivity.this).unregisterReceiver(refreshObserver);
+    }
+
+
+    /**
+     * Handle action for connect button click. fetch and clear Oauth token accordingly
+     */
     private void doOnBtnConnectClick() {
 
         if (mApp.hasAccessToken()) {
 
-            ApplicationData.printLog("Has AccessToken: " + mApp.getId());
-            ApplicationData.printLog("Has AccessToken: " + mApp.getName());
-            ApplicationData.printLog("Has AccessToken: " + mApp.getUserName());
+            InstagramUtils.showLog("Has AccessToken: " + mApp.getId());
+            InstagramUtils.showLog("Has AccessToken: " + mApp.getName());
+            InstagramUtils.showLog("Has AccessToken: " + mApp.getUserName());
             final AlertDialog.Builder builder = new AlertDialog.Builder(
                     MainActivity.this);
             builder.setMessage("Disconnect from Instagram?")
@@ -117,7 +170,7 @@ public class MainActivity extends FragmentActivity {
                                         DialogInterface dialog, int id) {
                                     mApp.resetAccessToken();
                                     btnConnect.setText("Connect");
-                                    tvSummary.setText("Not connected");
+                                    tvSummary.setText(getResources().getString(R.string.press_connect));
                                 }
                             })
                     .setNegativeButton("No",
@@ -130,66 +183,13 @@ public class MainActivity extends FragmentActivity {
             final AlertDialog alert = builder.create();
             alert.show();
         } else {
-            ApplicationData.printLog("Has No AccessToken");
-
-            mApp.authorize();
+            InstagramUtils.showLog("Has No AccessToken");
+            if (InstagramUtils.isNetworkAvailable(MainActivity.this)) {
+                mApp.authorize();
+            } else {
+                InstagramUtils.showToast(MainActivity.this, getResources().getString(R.string.no_network_connection_toast));
+            }
         }
     }
 
-    private void showViewPagerDetails() {
-
-        ImageCache.ImageCacheParams cacheParams =
-                new ImageCache.ImageCacheParams(MainActivity.this, IMAGE_CACHE_DIR);
-
-        cacheParams.setMemCacheSizePercent(0.25f); // Set memory cache to 25% of app memory
-
-
-//        RelativeLayout headerLayout = (RelativeLayout) findviewbyid(R.id.headerLayout);
-        ViewTreeObserver observer = btnConnect.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-            @Override
-            public void onGlobalLayout() {
-                // TODO Auto-generated method stub
-                InstagramUtils.showLog(btnConnect.getWidth());
-                setWidthValue(btnConnect.getWidth());
-                btnConnect.getViewTreeObserver().removeGlobalOnLayoutListener(
-                        this);
-            }
-        });
-
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher(MainActivity.this, getWidthValue());
-        mImageFetcher.setLoadingImage(R.drawable.empty_photo);
-        mImageFetcher.addImageCache(MainActivity.this.getSupportFragmentManager(), cacheParams);
-
-        vwPager.setAdapter(new AppPagerAdapter(getSupportFragmentManager(), mImageFetcher));
-    }
-
-    public int getWidthValue() {
-        return mImageThumbSize;
-    }
-
-    public void setWidthValue(int value) {
-        mImageThumbSize = value;
-    }
-
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        mImageFetcher.setPauseWork(false);
-        mImageFetcher.setExitTasksEarly(true);
-        mImageFetcher.flushCache();
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mImageFetcher.closeCache();
-
-    }
 }

@@ -9,8 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jcb.instaapp.model.Datum;
+import com.jcb.instalist.ApplicationData;
 import com.jcb.instalist.R;
-import com.jcb.instalist.cache.ImageFetcher;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -23,12 +23,10 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
     private ArrayList<Datum> mDataset;
     private Context mContext;
 
-    private ImageFetcher imageFetcher;
     // Provide a suitable constructor (depends on the kind of dataset)
-    public PictureRecyclerAdapter(Context context, ArrayList<Datum> myDataset, ImageFetcher imgFetcher) {
+    public PictureRecyclerAdapter(Context context, ArrayList<Datum> myDataset) {
         mDataset = myDataset;
         mContext = context;
-        this.imageFetcher = imgFetcher;
     }
 
     // Create new views (invoked by the layout manager)
@@ -49,9 +47,10 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.mTextView.setText(mDataset.get(position).getCaption().getText());
-//        imageFetcher.loadImage(mDataset.get(position).getImages().getStandardResolution().getUrl(), holder.mImageView);
+
         Picasso.with(mContext).setIndicatorsEnabled(true);
-        Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).into(holder.mImageView);
+        Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).resize(ApplicationData.widthScreenInPixels, ApplicationData.widthScreenInPixels).centerInside().into(holder.mImageView);
+//        Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).fit().centerCrop().into(holder.mImageView);
     }
 
     // Return the size of your dataset (invoked by the layout manager)

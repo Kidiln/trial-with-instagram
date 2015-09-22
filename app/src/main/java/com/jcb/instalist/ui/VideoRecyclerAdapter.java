@@ -1,5 +1,6 @@
 package com.jcb.instalist.ui;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jcb.instaapp.model.Datum;
+import com.jcb.instalist.ApplicationData;
 import com.jcb.instalist.R;
-import com.jcb.instalist.cache.ImageFetcher;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -19,13 +21,13 @@ import java.util.ArrayList;
 public class VideoRecyclerAdapter extends RecyclerView.Adapter<VideoRecyclerAdapter.ViewHolder> {
 
     private ArrayList<Datum> mDataset;
-    private ImageFetcher imageFetcher;
     private VideoFragment.VideoOnClickListener mListener;
+    private Context mContext;
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public VideoRecyclerAdapter(ArrayList<Datum> myDataset, ImageFetcher imageFetcher) {
+    public VideoRecyclerAdapter(Context context, ArrayList<Datum> myDataset) {
+        mContext = context;
         mDataset = myDataset;
-        this.imageFetcher = imageFetcher;
     }
 
     public void setClickListener(VideoFragment.VideoOnClickListener listener) {
@@ -52,8 +54,11 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<VideoRecyclerAdap
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.mTextView.setText(mDataset.get(position).getCaption().getText());
-        imageFetcher.loadImage(mDataset.get(position).getImages().getStandardResolution().getUrl(), holder.mImageView);
 
+        Picasso.with(mContext).setIndicatorsEnabled(true);
+        Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).resize(ApplicationData.widthScreenInPixels, ApplicationData.widthScreenInPixels).into(holder.mImageView);
+
+//        Picasso.with(mContext).load(mDataset.get(position).getImages().getStandardResolution().getUrl()).into(holder.mImageView);
 
     }
 

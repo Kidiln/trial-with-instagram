@@ -2,8 +2,6 @@ package com.jcb.instaapp;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -19,16 +17,12 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * @author Thiago Locatelli <thiago.locatelli@gmail.com>
- * @author Lorensius W. L T <lorenz@londatiga.net>
- */
 public class InstagramApp {
 
+    public static final String TAG = "InstagramAPI";
     private static final String AUTH_URL = "https://api.instagram.com/oauth/authorize/";
     private static final String TOKEN_URL = "https://api.instagram.com/oauth/access_token";
     private static final String API_URL = "https://api.instagram.com/v1";
-    public static final String TAG = "InstagramAPI";
     /**
      * Callback url, as set in 'Manage OAuth Costumers' page
      * (https://developer.github.com/)
@@ -58,8 +52,7 @@ public class InstagramApp {
                 } else if (msg.arg1 == 2) {
                     mListener.onFail("Failed to get user information");
                 }
-            }
-            else {
+            } else {
                 mProgress.dismiss();
                 mListener.onSuccess();
             }

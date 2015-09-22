@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Datum implements Serializable{
+public class Datum implements Serializable {
 
     @SerializedName("attribution")
     @Expose
