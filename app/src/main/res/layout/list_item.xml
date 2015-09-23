@@ -27,7 +27,7 @@
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
                 android:padding="16dp"
-                android:text="New Text" />
+                android:text="" />
 
         </RelativeLayout>
 

@@ -198,4 +198,19 @@ public class InstagramUtils {
 
     }
 
+    /**
+     * Check if input is valid.
+     * @param input
+     * @return : true is not null and not empty
+     */
+    public static boolean checkInputValid(Object input) {
+        if(input == null) {
+            return false;
+        } else if(input instanceof String) {
+            return !((String) input).isEmpty();
+        }
+
+        return true;
+    }
+
 }

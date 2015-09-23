@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jcb.instaapp.model.Caption;
 import com.jcb.instaapp.model.Datum;
 import com.jcb.instalist.ApplicationData;
+import com.jcb.instalist.InstagramUtils;
 import com.jcb.instalist.R;
 import com.squareup.picasso.Picasso;
 
@@ -55,9 +57,12 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<VideoRecyclerAdap
     public void onBindViewHolder(VideoRecyclerAdapter.ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mTextView.setText(mDataset.get(position).getCaption().getText());
+        Caption caption = mDataset.get(position).getCaption();
+        if (InstagramUtils.checkInputValid(caption)) {
+            holder.mTextView.setText(caption.getText());
+        }
 
-        Picasso.with(mContext).setIndicatorsEnabled(true);
+        Picasso.with(mContext).setIndicatorsEnabled(false);
         Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).resize(ApplicationData.widthScreenInPixels, ApplicationData.widthScreenInPixels).into(holder.mImageView);
 
     }

@@ -100,7 +100,10 @@ public class InstagramFetch {
                         List<Datum> vidItem = new ArrayList<Datum>();
 
                         for (Datum temp : users) {
-                            if (temp.getType().equalsIgnoreCase(TAG_VIDEO)) {
+                            if(temp.getImages() == null) {
+                                // Removing items without images, if present.
+                                continue;
+                            } else if (temp.getType().equalsIgnoreCase(TAG_VIDEO)) {
 
                                 vidItem.add(temp);
                             } else {

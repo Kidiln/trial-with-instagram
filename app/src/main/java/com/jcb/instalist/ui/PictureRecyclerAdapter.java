@@ -8,15 +8,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jcb.instaapp.model.Caption;
 import com.jcb.instaapp.model.Datum;
 import com.jcb.instalist.ApplicationData;
+import com.jcb.instalist.InstagramUtils;
 import com.jcb.instalist.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 /**
- *
  * Recycleview adapter used to populate the Image recyclerview
  * Created by jacobkoikkara on 9/21/15.
  */
@@ -48,9 +49,14 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
     public void onBindViewHolder(PictureRecyclerAdapter.ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mTextView.setText(mDataset.get(position).getCaption().getText());
 
-        Picasso.with(mContext).setIndicatorsEnabled(true);
+        Caption caption = mDataset.get(position).getCaption();
+        if (InstagramUtils.checkInputValid(caption)) {
+            holder.mTextView.setText(caption.getText());
+        }
+
+        Picasso.with(mContext).setIndicatorsEnabled(false);
+
         Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).resize(ApplicationData.widthScreenInPixels, ApplicationData.widthScreenInPixels).centerInside().into(holder.mImageView);
     }
 
