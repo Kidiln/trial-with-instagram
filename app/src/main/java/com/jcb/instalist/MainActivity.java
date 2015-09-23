@@ -20,11 +20,15 @@ import com.jcb.instaapp.InstagramApp;
 import com.jcb.instaapp.InstagramFetch;
 import com.jcb.instalist.ui.AppPagerAdapter;
 
-
+/**
+ * MainActivity used to show the Main screen.
+ * The Conncect button and pager is shown in Main screen.
+ */
 public class MainActivity extends FragmentActivity {
 
     private InstagramApp mApp;
     private InstagramFetch mFetch;
+    private boolean isPageVideo = false;
 
     /**
      * Receiver for handling online data fetch.
@@ -33,6 +37,7 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
 
+            isPageVideo = intent.getBooleanExtra(ApplicationData.INTENT_ISVIDEO, false);
             if (InstagramUtils.isNetworkAvailable(MainActivity.this)) {
                 mFetch.fetchFromInstagram(true);
             }
@@ -72,6 +77,7 @@ public class MainActivity extends FragmentActivity {
         public void onSuccess() {
             Toast.makeText(MainActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
             vwPager.setAdapter(new AppPagerAdapter(getSupportFragmentManager()));
+            vwPager.setCurrentItem(isPageVideo ? 1 : 0);
 
         }
 

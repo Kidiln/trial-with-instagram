@@ -16,6 +16,8 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 /**
+ *
+ * Recycleview adapter used to populate the Image recyclerview
  * Created by jacobkoikkara on 9/21/15.
  */
 public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecyclerAdapter.ViewHolder> {
@@ -50,7 +52,6 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
 
         Picasso.with(mContext).setIndicatorsEnabled(true);
         Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).resize(ApplicationData.widthScreenInPixels, ApplicationData.widthScreenInPixels).centerInside().into(holder.mImageView);
-//        Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).fit().centerCrop().into(holder.mImageView);
     }
 
     // Return the size of your dataset (invoked by the layout manager)

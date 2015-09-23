@@ -7,17 +7,16 @@ import android.content.SharedPreferences.Editor;
 /**
  * Manage access token and user name. Uses shared preferences to store access
  * token and user name.
- *
  */
 public class InstagramSession {
 
-    private static final String SHARED = "Instagram_Preferences";
+    public static final String SHARED = "Instagram_Preferences";
     private static final String API_USERNAME = "username";
     private static final String API_ID = "id";
     private static final String API_NAME = "name";
-    private static final String API_ACCESS_TOKEN = "access_token";
+    public static final String API_ACCESS_TOKEN = "access_token";
     private static final String API_COUNT = "count";
-    private static final int INITIAL_COUNT = 6;
+    private static final int INITIAL_COUNT = 5;
     private static final int UPDATE_COUNT = 5;
     private SharedPreferences sharedPref;
     private Editor editor;

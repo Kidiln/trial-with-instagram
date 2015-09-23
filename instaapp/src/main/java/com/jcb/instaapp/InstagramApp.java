@@ -23,10 +23,6 @@ public class InstagramApp {
     private static final String AUTH_URL = "https://api.instagram.com/oauth/authorize/";
     private static final String TOKEN_URL = "https://api.instagram.com/oauth/access_token";
     private static final String API_URL = "https://api.instagram.com/v1";
-    /**
-     * Callback url, as set in 'Manage OAuth Costumers' page
-     * (https://developer.github.com/)
-     */
 
     public static String mCallbackUrl = "";
     private static int WHAT_FINALIZE = 0;

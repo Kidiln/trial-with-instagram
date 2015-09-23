@@ -3,6 +3,7 @@ package com.jcb.instalist.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jcb.instaapp.InstagramFetch;
+import com.jcb.instaapp.InstagramSession;
 import com.jcb.instaapp.model.Datum;
 import com.jcb.instaapp.network.InstagramCache;
 import com.jcb.instalist.ApplicationData;
@@ -24,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
+ * Fragment for showing images
  * Created by jacobkoikkara on 9/21/15.
  */
 public class PictureFragment extends Fragment {
@@ -105,8 +108,12 @@ public class PictureFragment extends Fragment {
 
         if (InstagramUtils.isNetworkAvailable(mContext)) {
 
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ApplicationData.INTENT_REFRESH));
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ApplicationData.INTENT_REFRESH).putExtra(ApplicationData.INTENT_ISVIDEO, false));
 
+        } else if (getTokenValue() == null) {
+            InstagramUtils.showToast(mContext, "Token Invalid. Kindly Resync with Instagram");
+
+            swipeRefreshLayout.setRefreshing(false);
         } else {
             try {
 
@@ -127,6 +134,16 @@ public class PictureFragment extends Fragment {
         }
 
 
+    }
+
+    /**
+     * Retreive token value from Shared Preference
+     *
+     * @return null if no token is saved.
+     */
+    private String getTokenValue() {
+        SharedPreferences pref = mContext.getSharedPreferences(InstagramSession.SHARED, Context.MODE_PRIVATE);
+        return pref.getString(InstagramSession.API_ACCESS_TOKEN, null);
     }
 
 }

@@ -3,6 +3,7 @@ package com.jcb.instalist.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jcb.instaapp.InstagramFetch;
+import com.jcb.instaapp.InstagramSession;
 import com.jcb.instaapp.model.Datum;
 import com.jcb.instaapp.network.InstagramCache;
 import com.jcb.instalist.ApplicationData;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
+ * Fragment for showing video list
  * Created by jacobkoikkara on 9/21/15.
  */
 public class VideoFragment extends Fragment {
@@ -109,8 +112,12 @@ public class VideoFragment extends Fragment {
 
         if (InstagramUtils.isNetworkAvailable(mContext)) {
 
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ApplicationData.INTENT_REFRESH));
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ApplicationData.INTENT_REFRESH).putExtra(ApplicationData.INTENT_ISVIDEO, true));
 
+        } else if(getTokenValue() == null) {
+            InstagramUtils.showToast(mContext, "Token Invalid. Kindly Resync with Instagram");
+
+            swipeRefreshLayout.setRefreshing(false);
         } else {
             try {
 
@@ -133,12 +140,19 @@ public class VideoFragment extends Fragment {
 
     }
 
+    /**
+     * Calling video activity on Video item click
+     * @param position
+     */
     private void doOnVideoItemClick(int position) {
         Intent launchIntent = new Intent(mContext, VideoPlayerActivity.class);
         launchIntent.putExtra(ApplicationData.INTENT_URL, myDataset.get(position).getVideos().getStandardResolution().getUrl());
         startActivity(launchIntent);
     }
 
+    /**
+     * Click listener for Recycler view.
+     */
     public class VideoOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -147,6 +161,16 @@ public class VideoFragment extends Fragment {
 
             doOnVideoItemClick(itemPosition);
         }
+    }
+
+    /**
+     * Retreive token value from Shared Preference
+     *
+     * @return null if no token is saved.
+     */
+    private String getTokenValue() {
+        SharedPreferences pref = mContext.getSharedPreferences(InstagramSession.SHARED, Context.MODE_PRIVATE);
+        return pref.getString(InstagramSession.API_ACCESS_TOKEN, null);
     }
 
 }

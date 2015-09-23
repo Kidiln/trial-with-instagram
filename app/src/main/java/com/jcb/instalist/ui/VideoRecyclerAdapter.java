@@ -16,6 +16,8 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 /**
+ *
+ * Recycleview adapter used to populate the Video recyclerview
  * Created by jacobkoikkara on 9/21/15.
  */
 public class VideoRecyclerAdapter extends RecyclerView.Adapter<VideoRecyclerAdapter.ViewHolder> {
@@ -57,8 +59,6 @@ public class VideoRecyclerAdapter extends RecyclerView.Adapter<VideoRecyclerAdap
 
         Picasso.with(mContext).setIndicatorsEnabled(true);
         Picasso.with(mContext).load(mDataset.get(position).getImages().getLowResolution().getUrl()).resize(ApplicationData.widthScreenInPixels, ApplicationData.widthScreenInPixels).into(holder.mImageView);
-
-//        Picasso.with(mContext).load(mDataset.get(position).getImages().getStandardResolution().getUrl()).into(holder.mImageView);
 
     }
 

@@ -10,6 +10,7 @@ public class ApplicationData {
 
     public static final String INTENT_URL = "videourl";
     public static final String INTENT_REFRESH = "com.jcb.instalist.refresh";
+    public static final String INTENT_ISVIDEO = "com.jcb.instalist.isvideo";
 
 
     public static int widthScreenInPixels = 400;

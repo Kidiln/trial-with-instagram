@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -59,6 +61,10 @@ public class InstagramDialog extends Dialog {
         dimensions[0] = display.getWidth();
         dimensions[1] = display.getHeight();
         setContentView(mContent);
+
+        CookieSyncManager.createInstance(getContext());
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookie();
     }
 
     private void setUpTitle() {

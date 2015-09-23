@@ -5,6 +5,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 /**
+ *
+ * Pager adapter showing fragments. Fragments for Images and Videos
  * Created by jacobkoikkara on 9/21/15.
  */
 public class AppPagerAdapter extends FragmentPagerAdapter {

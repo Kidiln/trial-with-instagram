@@ -10,6 +10,8 @@ import com.jcb.instaapp.model.Datum;
 import java.lang.reflect.Type;
 
 /**
+ *
+ * Used for Marshalling the incoming JSON.
  * Created by jacobkoikkara on 9/21/15.
  */
 public class InstagramDeserializer implements JsonDeserializer<Datum[]> {
